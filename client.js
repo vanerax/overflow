@@ -1,4 +1,5 @@
 var io = require('socket.io-client');
+var tunnel = require('./common/tunnel');
 
 var socket = io('http://localhost:3001/');
 socket.on('connect', function(){
@@ -7,20 +8,21 @@ socket.on('connect', function(){
    socket.on('tunneldata', function (data) {
       console.log(data);
 
-      test1(socket);
+      //test1(socket);
    });
+   socket.emit('tunneldata', {a:1,b:2});
    test1(socket);
-
-   socket.on('hello', function(data){
-      console.log(data);
-   });
 
    // socket.on('hello', function(data){
    //    console.log(data);
    // });
-   socket.on('welcome', function(data){
-      console.log(data);
-   });
+
+   // socket.on('hello', function(data){
+   //    console.log(data);
+   // });
+   // socket.on('welcome', function(data){
+   //    console.log(data);
+   // });
 });
 
 socket.on('disconnect', function(){
