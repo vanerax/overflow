@@ -1,9 +1,14 @@
+var log4js = require('log4js');
+var logger = log4js.getLogger();
 const net = require('net');
+var log4js = require('log4js');
+var logger = log4js.getLogger();
 var app = require('express')();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var tunnel = require('../common/tunnel');
 var TunnelConnection = require('./TunnelConnection');
+
 
 function TunnelServer() {
    this._proxyMap = {};
@@ -12,14 +17,20 @@ function TunnelServer() {
 
 TunnelServer.prototype.listen = function(port, onConnect) {
    this._setupTunnel();
-
+   server.on('error', function() {
+      logger.error('on error');
+   });
+   server.on('connection', function(socket){
+      logger.error('on connection. ', socket);
+   });
    server.listen(port, onConnect);
 };
 
 TunnelServer.prototype._setupTunnel = function() {
    var self = this;
    io.on('connect', function(socket) {
-      console.log('a user connected');
+      //logger.info('new connection established. address = ' + socket.localeAddress + ' , port = ' + socket.localPort);
+      //logger.info('new connection established.', socket);
       // socket.on('disconnect', function(){
          // console.log('user disconnected');
       // });

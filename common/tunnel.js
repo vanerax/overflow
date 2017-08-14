@@ -12,6 +12,7 @@ var TUNNEL_REPLY = {
 
 // class TunnelData {
 //   TUNNEL_COMMAND command,
+//   UUID id,
 //   AbstractPayload payload
 //}
 
@@ -22,17 +23,14 @@ var TUNNEL_REPLY = {
 //}
 
 // class SendPayload : AbstractPayload {
-//   id
 //   data
 //}
 
 // class UnindPayload : AbstractPayload {
-//   id
 //}
 
 // class ReplyPayload : AbstractPayload {
 //   status
-//   id
 //}
 
 function Tunnel() {

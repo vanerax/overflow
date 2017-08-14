@@ -1,4 +1,6 @@
 const net = require('net');
+var log4js = require('log4js');
+var logger = log4js.getLogger();
 
 function TunnelConnection(socket, generator) {
    this._socket = socket;
@@ -19,17 +21,18 @@ TunnelConnection.prototype.start = function() {
 TunnelConnection.prototype._recvTunnelCommand = function(data) {
    // parse data
    var oData = data;
+   var id = oData.id;
    switch(oData.command) {
       case tunnel.TUNNEL_COMMAND.BIND:
          this._onBind(oData.payload);
          break;
 
       case tunnel.TUNNEL_COMMAND.UNBIND:
-         this._onUnbind(oData.payload);
+         this._onUnbind(id, oData.payload);
          break;
 
       case tunnel.TUNNEL_COMMAND.SEND:
-         this._onSend(oData.payload);
+         this._onSend(id, oData.payload);
          break;
 
       default:
@@ -57,7 +60,7 @@ TunnelConnection.prototype._onBind = function(bindPayload) {
       proxyInfo.socket = clientSocket;
 
       // reply to tunnel
-      self._reply(id, {status: tunnel.TUNNEL_REPLY.SUCCESS});
+      self._reply(id, {status: tunnel.TUNNEL_REPLY.SUCCESS, reqId: proxyInfo.reqId });
 
       clientSocket.on('data', function(chunk) {
          self._send(id, chunk);
@@ -69,7 +72,7 @@ TunnelConnection.prototype._onBind = function(bindPayload) {
    });
 
    clientSocket.on('error', function(err) {
-      self._reply(id, {status: tunnel.TUNNEL_REPLY.FAIL});
+      self._reply(id, {status: tunnel.TUNNEL_REPLY.FAIL, reqId: proxyInfo.reqId });
    });
 
    //clientSocket.on('drain', function() {
@@ -100,23 +103,15 @@ TunnelConnection.prototype._onSend = function(sendPayload) {
 };
 
 TunnelConnection.prototype._send = function(id, sendPayload) {
-   this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.SEND, {
-      id: id,
-      payload: sendPayload
-   });
+   this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.SEND, id, sendPayload);
 };
 
 TunnelConnection.prototype._reply = function(id, replyPayload) {
-   this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.REPLY, {
-      id: id,
-      payload: replyPayload
-   });
+   this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.REPLY, id, replyPayload);
 };
 
 TunnelConnection.prototype._unbind = function(id) {
-   this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.UNBIND, {
-      id: id
-   });
+   this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.UNBIND, id);
 };
 
 TunnelConnection.prototype._generateUniqueId = function() {
