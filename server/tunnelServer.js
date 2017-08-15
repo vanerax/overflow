@@ -17,14 +17,18 @@ function TunnelServer() {
 
 TunnelServer.prototype.listen = function(port, onConnect) {
    this._setupTunnel();
-   server.on('error', function() {
-      logger.error('on error');
+   server.on('error', function(err) {
+      logger.error('on error', err);
    });
    server.on('connection', function(socket){
-      logger.error('on connection. ', socket);
+      logger.info('on connection. ');
    });
    server.listen(port, onConnect);
 };
+
+TunnelServer.prototype.close = function() {
+   server.close();
+}
 
 TunnelServer.prototype._setupTunnel = function() {
    var self = this;
@@ -45,7 +49,7 @@ TunnelServer.prototype._setupTunnel = function() {
       //    //io.emit('welcome', 'welcome ' + socket.id);
       //     socket.emit('hello', "hello " + name);
       // });
-      var tunConn = new TunnelConnection(socket, this);
+      var tunConn = new TunnelConnection(socket, self);
       tunConn.start();
    });
 };
@@ -114,7 +118,7 @@ TunnelServer.prototype._setupTunnel = function() {
 // };
 
 
-TunnelServer.prototype._generateUniqueId = function() {
+TunnelServer.prototype.generateUniqueId = function() {
    return ++this._lastUsedId;
 };
 
