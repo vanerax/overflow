@@ -7,7 +7,7 @@ var app = require('express')();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 var tunnel = require('../common/tunnel');
-var TunnelConnection = require('./TunnelConnection');
+var TunnelConnectionServer = require('./TunnelConnectionServer');
 
 
 function TunnelServer() {
@@ -20,9 +20,9 @@ TunnelServer.prototype.listen = function(port, onConnect) {
    server.on('error', function(err) {
       logger.error('on error', err);
    });
-   server.on('connection', function(socket){
-      logger.info('on connection. ');
-   });
+   //server.on('connection', function(socket){
+   //   logger.info('on connection. ');
+   //});
    server.listen(port, onConnect);
 };
 
@@ -33,8 +33,8 @@ TunnelServer.prototype.close = function() {
 TunnelServer.prototype._setupTunnel = function() {
    var self = this;
    io.on('connect', function(socket) {
-      //logger.info('new connection established. address = ' + socket.localeAddress + ' , port = ' + socket.localPort);
-      //logger.info('new connection established.', socket);
+      logger.info('new connection established. address = ' + socket.localeAddress + ' , port = ' + socket.localPort);
+      logger.info('new connection established.', socket);
       // socket.on('disconnect', function(){
          // console.log('user disconnected');
       // });
@@ -49,11 +49,70 @@ TunnelServer.prototype._setupTunnel = function() {
       //    //io.emit('welcome', 'welcome ' + socket.id);
       //     socket.emit('hello', "hello " + name);
       // });
-      var tunConn = new TunnelConnection(socket, self);
-      tunConn.start();
+      self._processConnection(socket);
    });
 };
 
+TunnelServer.prototype._processConnection = function(tunnelSocket) {
+   var self = this;
+
+   var proxyMap = {};
+   var tunConn = new TunnelConnectionServer(tunnelSocket, this);
+
+   tunConn.on('bind', function(bindPayload) {
+      //bindPayload.address
+      //bindPayload.port
+
+      var proxyInfo = bindPayload;
+      var clientSocket = net.connect({host: address, port: port}, () => {
+         // 'connect' listener
+         //console.log('connected to server!');
+         logger.debug('connected');
+         proxyInfo.socket = clientSocket;
+         var id = self._generateUniqueId();
+         proxyMap[id] = proxyInfo;
+
+         // reply to tunnel
+         tunConn.bindReply(id, {status: tunnel.TUNNEL_REPLY.SUCCESS, reqId: bindPayload.reqId});
+
+         clientSocket.on('data', function(chunk) {
+            tunConn.send(id, chunk);
+         });
+
+         clientSocket.on('end', function() {
+            tunConn.unbind(id);
+            delete proxyMap[id];
+         });
+      });
+      clientSocket.on('error', function(err) {
+         logger.debug('error. failed to connect');
+         tunConn.bindReply(id, {status: tunnel.TUNNEL_REPLY.FAIL, reqId: bindPayload.reqId });
+      });
+   });
+
+   tunConn.on('unbind', function(id) {
+      if (proxyMap[id]) {
+         var socket = proxyMap[id].socket;
+         socket.end();
+
+         delete proxyMap[id];
+      }
+   });
+
+   tunConn.on('send', function(id, sendPayload) {
+      if (proxyMap[id]) {
+         var socket = proxyMap[id].socket;
+         if (socket) {
+            socket.write(sendPayload);
+         }
+      }
+   });
+
+};
+
+TunnelServer.prototype._connectTarget = function(address, port, fSucceed, fFail, fData, fEnd) {
+   
+};
 // TunnelServer.prototype._recvTunnelData = function(socket, data) {
 //    // parse data
 //    var oData = data;
@@ -118,7 +177,7 @@ TunnelServer.prototype._setupTunnel = function() {
 // };
 
 
-TunnelServer.prototype.generateUniqueId = function() {
+TunnelServer.prototype._generateUniqueId = function() {
    return ++this._lastUsedId;
 };
 

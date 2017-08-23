@@ -3,7 +3,7 @@ var logger = log4js.getLogger();
 logger.level = 'debug';
 
 var TunnelServer = require('./TunnelServer');
-var port = 3001;
+var port = 8082;
 var tunnelServer = new TunnelServer();
 
 tunnelServer.listen(port, function(){

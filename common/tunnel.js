@@ -1,8 +1,9 @@
 var TUNNEL_COMMAND = {
    SEND: 1,
    BIND: 2,
-   UNBIND: 3,
-   REPLY: 4
+   BIND_REPLY: 3,
+   UNBIND: 4,
+   REPLY: 5
 };
 
 var TUNNEL_REPLY = {

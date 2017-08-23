@@ -7,8 +7,8 @@ var TunnelServer = require('../server/TunnelServer');
 var TunnelClient = require('../client/TunnelClient');
 var TunnelConnection = require('../client/TunnelConnectionClient');
 
-var host = 'slc09ybk.us.oracle.com';
-var port = 7101;
+var host = 'localhost';
+var port = 8082;
 
 // var tunnelServer = new TunnelServer();
 // tunnelServer.listen(port, function(){
