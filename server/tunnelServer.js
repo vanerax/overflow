@@ -10,9 +10,10 @@ var tunnel = require('../common/tunnel');
 var TunnelConnectionServer = require('./TunnelConnectionServer');
 
 
-function TunnelServer() {
+function TunnelServer(fOnBindRequest) {
    this._proxyMap = {};
    this._lastUsedId = 0;
+   thos._fOnBindRequest = fOnBindRequest;
 }
 
 TunnelServer.prototype.listen = function(port, onConnect) {
@@ -33,8 +34,9 @@ TunnelServer.prototype.close = function() {
 TunnelServer.prototype._setupTunnel = function() {
    var self = this;
    io.on('connect', function(socket) {
-      logger.info('new connection established. address = ' + socket.localeAddress + ' , port = ' + socket.localPort);
-      logger.info('new connection established.', socket);
+      //logger.info('new connection established. address = ' + socket.localeAddress + ' , port = ' + socket.localPort);
+      //logger.info('new connection established.', socket);
+
       // socket.on('disconnect', function(){
          // console.log('user disconnected');
       // });

@@ -16,7 +16,7 @@
 // 2. unbind
 // 3. send data
 var net = require('net');
-var socks5 = require('./socks5.js');
+var socks5 = require('../common/socks5server.js');
 var io = require('socket.io-client');
 var log4js = require('log4js');
 var tunnel = require('../common/tunnel');
