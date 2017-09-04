@@ -11,6 +11,7 @@ var TUNNEL_REPLY = {
    FAIL: 2
 };
 
+var TUNNEL_COMMAND_SERVICE_EVENT = 'tunnel.command.service';
 // class TunnelData {
 //   TUNNEL_COMMAND command,
 //   UUID id,
@@ -46,5 +47,6 @@ Tunnel.bind = function(data, onComplete) {
 
 module.exports = {
    TUNNEL_COMMAND: TUNNEL_COMMAND,
-   TUNNEL_REPLY: TUNNEL_REPLY
+   TUNNEL_REPLY: TUNNEL_REPLY,
+   TUNNEL_COMMAND_SERVICE_EVENT: TUNNEL_COMMAND_SERVICE_EVENT
 };
