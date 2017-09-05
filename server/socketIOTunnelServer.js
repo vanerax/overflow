@@ -1,7 +1,7 @@
 var util = require('util');
 var AbstractTunnelServer = require('./abstractTunnelServer');
-var TunnelConnection = require('../common/TunnelConnection');
-var TunnelCommandService = require('../common/TunnelCommandService');
+var SocketIOTunnelConnection = require('../common/SocketIOTunnelConnection');
+var TunnelMessageHub = require('../common/TunnelMessageHub');
 var app = require('express')();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
@@ -39,8 +39,10 @@ SocketIOTunnelServer.prototype._init = function() {
       //   socket.close();
       //   return;
       //}
+      self._tunMsgHub = new TunnelMessageHub();
 
-      self._tunnelConnection = TunnelConnection(socket);
+      self._tunnelConnection = new SocketIOTunnelConnection(socket, self._tunMsgHub);
+      self._tunnelConnection._outBufferList = self._outBufferList;
       self._fOnConnect(self._tunnelConnection);
 
       //self._socket = socket;
@@ -50,7 +52,9 @@ SocketIOTunnelServer.prototype._init = function() {
       // socket.on('disconnect', function(reason) {
       //    self._socket = null;
       // });
-      TunnelCommandService.getInstance().subscribeOutCommand(TUNNEL_COMMAND_SERVICE_EVENT, function(cmd, id, payload) {
+      
+
+      TunnelCommandService.out.subscribe(function(cmd, id, payload) {
          // get a connection
          // then send command
          if (self._tunnelConnection.isActive()) {

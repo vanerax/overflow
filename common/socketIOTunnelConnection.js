@@ -5,70 +5,83 @@ var log4js = require('log4js');
 var logger = log4js.getLogger();
 var tunnel = require('./tunnel');
 var AbstractTunnelConnection = require('./abstractTunnelConnection');
+var TunnelCommandService = require('../common/TunnelCommandService');
 var overflowUtils = require('./overflowUtils');
 
-function TunnelConnection(socket) {
-   TunnelConnection.super_.call(this);
-   this._socket = socket;
-   //this._proxyMap = {};
-   //this._bindRequestMap = {};
+var SOCKETIO_TUNNEL_EVENT = 'tunneldata';
+class SocketIOTunnelConnection extends AbstractTunnelConnection {
+   constructor(socket, tunMsgHub) {
+      super();
+      this._socket = socket;
+      this._tunMsgHub = tunMsgHub;
+      //this._proxyMap = {};
+      //this._bindRequestMap = {};
 
-   this._subscribeEvents();
-}
-util.inherits(TunnelConnection, AbstractTunnelConnection);
-
-TunnelConnection.prototype.write = function(cmd, channelId, payload) {
-   this._socket.emit('tunneldata', {
-      command: cmd,
-      id: channelId,
-      payload: payload
-   });
-};
-
-TunnelConnection.prototype.end = function() {
-   this._socket.end();
-};
-
-TunnelConnection.prototype._subscribeEvents = function() {
-   var self = this;
-   this._socket.on('tunneldata', function(data) {
-      //console.log(data);
-      self._recvTunnelCommand(data);
-   });
-};
-
-TunnelConnection.prototype._recvTunnelCommand = function(data) {
-   // parse data
-   var oData = data;
-   var id = oData.id;
-   switch(oData.command) {
-      case tunnel.TUNNEL_COMMAND.BIND_REQUEST:
-         this._onBind(oData.payload);
-         break;
-
-      case tunnel.TUNNEL_COMMAND.BIND_REPLY:
-         this.emit('bindreply');
-         TunnelCommandService.getInstance().publishInCommand(TUNNEL_COMMAND_SERVICE_EVENT, cmd, this._id, payload);
-         break;
-
-      case tunnel.TUNNEL_COMMAND.UNBIND:
-         //this._onUnbind(id, oData.payload);
-         this.emit('unbind');
-         break;
-
-      case tunnel.TUNNEL_COMMAND.SEND:
-         //this._onSend(id, oData.payload);
-         this.emit('send');
-         break;
-
-      default:
-         break;
+      this._subscribeEvents();
    }
-};
+
+   isActive() {
+      return true;
+   }
+
+   // handle if socket disconnected case
+   write(data) {
+      if (this.isActive()) {
+         this._socket.emit(SOCKETIO_TUNNEL_EVENT, data);
+      } else {
+         var outBufferList = this._tunMsgHub._outBufferList;
+         outBufferList.push(data);
+      }
+   }
+
+   end() {
+      this._socket.end();
+   }
+
+   _subscribeEvents() {
+      this._socket.on(SOCKETIO_TUNNEL_EVENT, (data) => {
+         //console.log(data);
+         this._tunMsgHub.send(data);
+      });
+
+      this._tunMsgHub.onRecv((data) => {
+         this.write(data);
+      });
+   }
+}
+
+
 
 //////////////////////////////////////
 
+//TunnelConnection.prototype._recvTunnelCommand = function(data) {
+//    // parse data
+//    var oData = data;
+//    var id = oData.id;
+//    switch(oData.command) {
+//       case tunnel.TUNNEL_COMMAND.BIND_REQUEST:
+//          this._onBind(oData.payload);
+//          break;
 
+//       case tunnel.TUNNEL_COMMAND.BIND_REPLY:
+//          this.emit('bindreply');
+//          TunnelCommandService.in.getInstance().emit(TUNNEL_COMMAND_SERVICE_EVENT, cmd, this._id, payload);
+//          break;
+
+//       case tunnel.TUNNEL_COMMAND.UNBIND:
+//          //this._onUnbind(id, oData.payload);
+//          this.emit('unbind');
+//          break;
+
+//       case tunnel.TUNNEL_COMMAND.SEND:
+//          //this._onSend(id, oData.payload);
+//          this.emit('send');
+//          break;
+
+//       default:
+//          break;
+//    }
+// };
 
 // TunnelConnection.prototype.bind = function(bindPayload) {
 //    // generate req id for binding process so that reply message can be mapped to the correct socket

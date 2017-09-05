@@ -13,7 +13,7 @@ var TunnelConnectionServer = require('./TunnelConnectionServer');
 function TunnelServer(fOnBindRequest) {
    this._proxyMap = {};
    this._lastUsedId = 0;
-   thos._fOnBindRequest = fOnBindRequest;
+   this._fOnBindRequest = fOnBindRequest;
 }
 
 TunnelServer.prototype.listen = function(port, onConnect) {
