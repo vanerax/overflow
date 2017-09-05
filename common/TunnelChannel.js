@@ -6,13 +6,14 @@ var TunnelCommandService = require('./TunnelCommandService');
 
 // Once recv bind command, it'll generate a new channel
 // Channel does independent of Connection therefore it still lives even if connection is disconnected.
-class TunnelChannel extends EventEmitter {
+class TunnelChannel {
    constructor(id, socket) {
       this._id = id;
       this._socket = socket;
-
+      this._eventEmitter = new EventEmitter();
       this._recvCommand();
       this._processCommand();
+      this._subscribeEvents();
    }
    
    send(payload) {
@@ -31,8 +32,12 @@ class TunnelChannel extends EventEmitter {
       
    }
 
+   write(data) {
+      this._socket.write(data);
+   }
+
    _sendTunnelCommand(cmd, payload) {
-      TunnelCommandService.out.publish(cmd, this._id, payload);
+      
    }
 
    _recvCommand() {
@@ -58,6 +63,12 @@ class TunnelChannel extends EventEmitter {
             break;
          }
       });
+
+      _subscribeEvents() {
+         this._socket.on('data', (chunk) => {
+            this._sendTunnelCommand(tunnel.TUNNEL_COMMAND.SEND, payload);
+         });
+      }
    }
 
    _processCommand() {

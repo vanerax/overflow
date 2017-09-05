@@ -13,6 +13,7 @@ function SocketIOTunnelServer(fOnConnect) {
    this._outBufferList = [];
    this._fOnConnect = fOnConnect;
 
+   this._init();
 }
 util.inherits(SocketIOTunnelServer, AbstractTunnelServer);
 
@@ -25,10 +26,6 @@ SocketIOTunnelServer.prototype.close = function() {
    if (this._socket) {
       this._socket.close();
    }
-};
-
-SocketIOTunnelServer.prototype._onConnect = function(tunnelSocket) {
-
 };
 
 SocketIOTunnelServer.prototype._init = function() {
@@ -54,23 +51,23 @@ SocketIOTunnelServer.prototype._init = function() {
       // });
       
 
-      TunnelCommandService.out.subscribe(function(cmd, id, payload) {
-         // get a connection
-         // then send command
-         if (self._tunnelConnection.isActive()) {
-            self._tunnelConnection.write({
-               command: cmd,
-               id: id,
-               payload: payload
-            });
-         }
-      });
+      // TunnelCommandService.out.subscribe(function(cmd, id, payload) {
+      //    // get a connection
+      //    // then send command
+      //    if (self._tunnelConnection.isActive()) {
+      //       self._tunnelConnection.write({
+      //          command: cmd,
+      //          id: id,
+      //          payload: payload
+      //       });
+      //    }
+      // });
 
-      // send out buffer if existed
-      while (self._outBufferList.length > 0) {
-         var oData = self._outBufferList.splice(0, 1);
-         self._socket.emit('tunneldata', oData);
-      }
+      // // send out buffer if existed
+      // while (self._outBufferList.length > 0) {
+      //    var oData = self._outBufferList.splice(0, 1);
+      //    self._socket.emit('tunneldata', oData);
+      // }
    });
 };
 

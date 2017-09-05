@@ -17,9 +17,9 @@ class TunnelMessageHub {
       this._channelMap = {};
    }
 
-   send(msg) {
+   write(msg) {
       //this._eventEmitter.emit(TUNNEL_COMMAND_SERVICE_EVENT, msg);
-      var id = msg.id;
+      var channelId = msg.id;
       switch(msg.command) {
          case tunnel.TUNNEL_COMMAND.BIND_REQUEST:
             this._onBind(msg.payload);
@@ -35,7 +35,8 @@ class TunnelMessageHub {
 
          case tunnel.TUNNEL_COMMAND.SEND:
             //this._onSend(id, oData.payload);
-            this.emit('send');
+            var tunnelChannel = this._channelMap[channelId];
+            tunnelChannel.write(msg.payload)
             break;
 
          default:

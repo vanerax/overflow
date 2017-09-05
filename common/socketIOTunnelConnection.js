@@ -41,11 +41,11 @@ class SocketIOTunnelConnection extends AbstractTunnelConnection {
    _subscribeEvents() {
       this._socket.on(SOCKETIO_TUNNEL_EVENT, (data) => {
          //console.log(data);
-         this._tunMsgHub.send(data);
+         this._tunMsgHub.write(data);
       });
 
-      this._tunMsgHub.onRecv((data) => {
-         this.write(data);
+      this._tunMsgHub.on('data', (chunk) => {
+         this.write(chunk);
       });
    }
 }
