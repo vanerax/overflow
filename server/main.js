@@ -2,10 +2,15 @@ var log4js = require('log4js');
 var logger = log4js.getLogger();
 logger.level = 'debug';
 
-var TunnelServer = require('./TunnelServer');
+var SocketIOTunnelServer = require('./socketIOTunnelServer');
 var port = 8082;
-var tunnelServer = new TunnelServer();
+var tunnelServer = new SocketIOTunnelServer(conn => {
+   conn.on('data', (data) => {
+      
+   });
+});
 
 tunnelServer.listen(port, function(){
    console.log('listening on *:' + port);
 });
+

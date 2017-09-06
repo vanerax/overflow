@@ -1,9 +1,18 @@
 var EventEmitter = require('events');
 var util = require('util');
 
-function AbstractTunnelConnection(socket) {
+class AbstractTunnelConnection extends EventEmitter {
+   constructor() {
+      super();
+   }
 
+   write(data) {
+         throw "Not implemented";
+   }
+
+   end() {
+         throw "Not implemented";
+   }
 }
-util.inherits(AbstractTunnelConnection, EventEmitter);
 
 module.exports = AbstractTunnelConnection;

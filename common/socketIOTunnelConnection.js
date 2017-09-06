@@ -5,15 +5,17 @@ var log4js = require('log4js');
 var logger = log4js.getLogger();
 var tunnel = require('./tunnel');
 var AbstractTunnelConnection = require('./abstractTunnelConnection');
-var TunnelCommandService = require('../common/TunnelCommandService');
+//var TunnelCommandService = require('../common/TunnelCommandService');
 var overflowUtils = require('./overflowUtils');
 
 var SOCKETIO_TUNNEL_EVENT = 'tunneldata';
 class SocketIOTunnelConnection extends AbstractTunnelConnection {
-   constructor(socket, tunMsgHub) {
+   constructor(socket) {
       super();
+      // socketio instance
       this._socket = socket;
-      this._tunMsgHub = tunMsgHub;
+      this._active = true;
+      //this._tunMsgHub = tunMsgHub;
       //this._proxyMap = {};
       //this._bindRequestMap = {};
 
@@ -21,7 +23,7 @@ class SocketIOTunnelConnection extends AbstractTunnelConnection {
    }
 
    isActive() {
-      return true;
+      return this._active;
    }
 
    // handle if socket disconnected case
@@ -29,23 +31,28 @@ class SocketIOTunnelConnection extends AbstractTunnelConnection {
       if (this.isActive()) {
          this._socket.emit(SOCKETIO_TUNNEL_EVENT, data);
       } else {
-         var outBufferList = this._tunMsgHub._outBufferList;
-         outBufferList.push(data);
+         // var outBufferList = this._tunMsgHub._outBufferList;
+         // outBufferList.push(data);
       }
    }
 
    end() {
-      this._socket.end();
+      this._socket.disconnect();
    }
 
    _subscribeEvents() {
-      this._socket.on(SOCKETIO_TUNNEL_EVENT, (data) => {
-         //console.log(data);
-         this._tunMsgHub.write(data);
+      var self = this;
+      this._socket.on('connect', ()=>{
+         this.emit('connect');
       });
 
-      this._tunMsgHub.on('data', (chunk) => {
-         this.write(chunk);
+      this._socket.on('disconnect', () => {
+         this._active = false;
+         this.emit('end');
+      });
+
+      this._socket.on(SOCKETIO_TUNNEL_EVENT, (data) => {
+         this.emit('data', data);
       });
    }
 }
@@ -183,4 +190,4 @@ class SocketIOTunnelConnection extends AbstractTunnelConnection {
 
 
 
-module.exports = TunnelConnection;
+module.exports = SocketIOTunnelConnection;

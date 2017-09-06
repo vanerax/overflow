@@ -23,9 +23,9 @@ SocketIOTunnelServer.prototype.listen = function(port) {
 
 SocketIOTunnelServer.prototype.close = function() {
    server.close();
-   if (this._socket) {
-      this._socket.close();
-   }
+   //if (this._socket) {
+   //   this._socket.close();
+   //}
 };
 
 SocketIOTunnelServer.prototype._init = function() {
@@ -83,3 +83,5 @@ SocketIOTunnelServer.prototype._sendTunnelCommand = function(cmd, id, payload) {
       this._outBufferList.push(oData);
    }
 };
+
+module.exports = SocketIOTunnelServer;
