@@ -31,14 +31,7 @@ SocketIOTunnelServer.prototype.close = function() {
 SocketIOTunnelServer.prototype._init = function() {
    var self = this;
    io.on('connect', (socket) => {
-      //if (self._socket) {
-         // already have socket. Close other sockets.
-      //   socket.close();
-      //   return;
-      //}
-      self._tunMsgHub = new TunnelMessageHub();
-
-      self._tunnelConnection = new SocketIOTunnelConnection(socket, self._tunMsgHub);
+      self._tunnelConnection = new SocketIOTunnelConnection(socket);
       self._tunnelConnection._outBufferList = self._outBufferList;
       self._fOnConnect(self._tunnelConnection);
 
