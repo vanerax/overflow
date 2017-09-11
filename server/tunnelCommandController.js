@@ -13,6 +13,10 @@ class TunnelCommandController extends EventEmitter {
       this._subscribeEvents();
    }
 
+   run() {
+
+   }
+
    onCommand(data) {
       var oData = data;
       var id = oData.id;
@@ -33,6 +37,10 @@ class TunnelCommandController extends EventEmitter {
          default:
             break;
       }
+   }
+
+   getResponse() {
+      return this._response;
    }
 
    _subscribeEvents() {

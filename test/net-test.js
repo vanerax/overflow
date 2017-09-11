@@ -7,5 +7,5 @@ var socket = net.createConnection({host: 'slc09ybk.us.oracle.com', port: 7101 },
 
 socket.on('end', () => {
    console.log('on end');
-})
+});
 

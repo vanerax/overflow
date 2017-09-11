@@ -13,7 +13,9 @@ class AppImpl {
       // if (this instanceof App) {
       //    throw "Operation not allowed";
       // }
+      this._conn;
       this._connMap = {}; // controller, connection
+      this._controller;
    }
 
    exit() {
@@ -21,7 +23,7 @@ class AppImpl {
    }
 
    _startServer() {
-
+      var self = this;
       var tunnelServer = new SocketIOTunnelServer(conn => {
          if (this._conn) {
             conn.end();
@@ -35,17 +37,30 @@ class AppImpl {
          } else {
             // new connection
             var response = { // when reconnected, make sure using the latest connection
-               write: function() {
+               _buffers: [],
+               write: function(data) {
                   // get active connnection and write data
-
+                  if (_conn) {
+                     while (this._buffers.length > 0) {
+                        var oData = this._buffers.splice(0, 1);
+                        _conn.write(oData);
+                     }
+                     _conn.write(data);
+                  } else {
+                     _buffers.push(data);
+                  }
                }
             };
-            var controller = new TunnelCommandController(response);
+            var controller = this._controller = new TunnelCommandController(response);
          }
-
          
-         
+         conn.on('data', (data) => {
+            self._controller.onCommand(data);
+         });
 
+         conn.on('end', ()=>{
+            this._conn = null;
+         });
       });
 
       tunnelServer.listen(port, function(){

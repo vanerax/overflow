@@ -30,7 +30,7 @@ class TunnelChannel extends EventEmitter {
             self._id = id;
             self._socket = clientSocket;
             self._isInit = true;
-            this._subscribeEvents();
+            self._subscribeEvents();
             self._bindReply(id, {status: tunnel.TUNNEL_REPLY.SUCCESS, reqId: bindPlayload.reqId });
          };
          fOnSuccess(setChannelId);
@@ -38,6 +38,7 @@ class TunnelChannel extends EventEmitter {
 
       clientSocket.on('error', function(err) {
          //logger.debug('error. failed to connect');
+         fOnFail();
          self._bindReply(0, {status: tunnel.TUNNEL_REPLY.FAIL, reqId: bindPlayload.reqId });
       });
    }
