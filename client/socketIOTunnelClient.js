@@ -26,10 +26,7 @@ class SocketIOTunnelClient {
       // });
 
       conn.on('connect', () => {
-         logger.info('connected');
-         //var tunConn = new TunnelConnection(socket);
-         //this.tunnelConnection = tunConn;
-         //tunConn.start();
+         logger.info('client connected to server');
          if (fOnConnect instanceof Function) {
             fOnConnect();
          }

@@ -54,7 +54,8 @@ class TunnelCommandController extends EventEmitter {
          // success
          var id = _generateUniqueId();
          fSetChannelId(id);
-
+         this._channelMap[id] = channel;
+         
          channel.on(TunnelChannel.CHANNEL_DATA_EVENT, (cmd, channelId, payload) => {
             // send to tunnel
             var data = {
@@ -64,7 +65,7 @@ class TunnelCommandController extends EventEmitter {
             };
             this._response.write(data);
          });
-         this._channelMap[id] = channel;
+         
 
       }, () => {
          // failed

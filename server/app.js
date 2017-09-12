@@ -15,7 +15,7 @@ class AppImpl {
       // }
       this._conn;
       this._connMap = {}; // controller, connection
-      this._controller;
+      this._controller = null;
    }
 
    exit() {
