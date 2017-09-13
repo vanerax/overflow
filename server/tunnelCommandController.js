@@ -6,6 +6,7 @@ var app = App.getInstance();
 
 class TunnelCommandController extends EventEmitter {
    constructor(response) {
+      super();
       this._lastUsedId = 0;
       this._channelMap = {};
       this._response = response;
@@ -52,10 +53,6 @@ class TunnelCommandController extends EventEmitter {
       var channel = new TunnelChannel();
       channel.connect(bindPayload, (fSetChannelId) => {
          // success
-         var id = _generateUniqueId();
-         fSetChannelId(id);
-         this._channelMap[id] = channel;
-         
          channel.on(TunnelChannel.CHANNEL_DATA_EVENT, (cmd, channelId, payload) => {
             // send to tunnel
             var data = {
@@ -63,9 +60,13 @@ class TunnelCommandController extends EventEmitter {
                id: channelId, 
                payload: payload
             };
+            //console.log('>>3 ', cmd, channelId, payload);
             this._response.write(data);
          });
-         
+
+         var id = this._generateUniqueId();
+         this._channelMap[id] = channel;
+         fSetChannelId(id);
 
       }, () => {
          // failed
@@ -90,3 +91,5 @@ class TunnelCommandController extends EventEmitter {
    }
 
 }
+
+module.exports = TunnelCommandController;

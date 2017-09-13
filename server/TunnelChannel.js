@@ -45,6 +45,7 @@ class TunnelChannel extends EventEmitter {
    }
 
    send(data) {
+      console.log('>>> channel send');
       if (!this.isInitialized()) {
          throw "not initialized";
       }
@@ -63,6 +64,7 @@ class TunnelChannel extends EventEmitter {
    }
 
    _sendTunnelCommand(cmd, payload) {
+      //console.log('channel emit command: ', cmd, this._id, payload);
       this.emit(CHANNEL_DATA_EVENT, cmd, this._id, payload);
    }
 

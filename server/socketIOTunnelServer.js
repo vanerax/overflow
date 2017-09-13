@@ -1,7 +1,6 @@
 var util = require('util');
 var AbstractTunnelServer = require('./abstractTunnelServer');
 var SocketIOTunnelConnection = require('../common/SocketIOTunnelConnection');
-var TunnelMessageHub = require('../common/TunnelMessageHub');
 var app = require('express')();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
@@ -10,6 +9,7 @@ var io = require('socket.io')(server);
 // We plan to support multiple tunnel type. SocketIOTunnelServer is just one implementation.
 class SocketIOTunnelServer extends AbstractTunnelServer {
    constructor(fOnConnect) {
+      super();
       this._socket = null;
       this._fOnConnect = fOnConnect;
 
